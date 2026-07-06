@@ -4221,20 +4221,16 @@
           window.open("https://www.xlsmart.co.id/id", "_blank");
           return;
         }
-        if (label === "Isi Data Upgrade") {
+        if (label === "Upgrade ke Pascabayar") {
           botRespond(1400, showOTPPrompt);
           return;
         }
-        if (label === "Upgrade ke Pascabayar") {
-          botRespond(1400, showUpgradeFormInfo);
-          return;
-        }
         if (label === "Upgrade Sekarang") {
-          botRespond(1400, showUpgradeFormInfo);
+          botRespond(1400, showOTPPrompt);
           return;
         }
         if (label === "Upgrade Pascabayar") {
-          botRespond(1400, showUpgradeFormInfo);
+          botRespond(1400, showOTPPrompt);
           return;
         }
         if (label === "Beli Nomor Pascabayar") {
@@ -8698,13 +8694,6 @@
             { html: "Beli Nomor Pascabayar", label: "Beli Nomor Pascabayar" },
             { html: "🏠 Menu Utama", label: "Kembali ke Menu Utama" },
           ],
-        });
-      }
-
-      function showUpgradeFormInfo() {
-        appendBotMessage({
-          html: "Untuk <strong>upgrade</strong> menjadi <strong>Prioritas</strong>, silakan mengisi form pengajuan terlebih dahulu di bawah.👇",
-          buttons: [{ html: "Isi Data", label: "Isi Data Upgrade" }],
         });
       }
 
