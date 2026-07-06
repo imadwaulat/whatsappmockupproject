@@ -8596,7 +8596,7 @@
       function showKonfirmasiUpgradePrioritas(nomorHP, email, nomorLainnya) {
         appendBotMessage({
           html:
-            `🔔<strong>Konfirmasi Upgrade Prioritas</strong><br><br>` +
+            `⚠️<strong>Konfirmasi Upgrade Prioritas</strong><br><br>` +
             `Nomor HP: <strong>${escHtml(nomorHP)}</strong><br>` +
             `Email: <strong>${escHtml(email)}</strong><br>` +
             `Nomor HP Lainnya: <strong>${escHtml(nomorLainnya || "-")}</strong><br><br>` +
@@ -8659,16 +8659,13 @@
       function showUpgradePrioritasSuccess() {
         appendBotMessage({
           html:
-            `✅<strong>Terima kasih</strong><br>Pengajuanmu untuk <strong>Upgrade</strong> menjadi <strong>Prioritas</strong> sedang diproses.<br><br>` +
+            `✅<strong>Terima kasih</strong><br><br>Pengajuanmu untuk <strong>Upgrade</strong> menjadi <strong>Prioritas</strong> sedang diproses.<br><br>` +
             `Anda dapat mengecek status Upgrade Prioritas dengan cara Cek Email atau SMS Anda secara berkala atau bisa melalui <a href="https://bit.ly/appsmyxl" target="_blank"> Apps myXL</a>.`,
           buttons: [
             { html: "🏠 Menu Utama", label: "Kembali ke Menu Utama" },
-            // { html: "Akhiri Sesi", label: "Akhiri Sesi" },
-
-            // { html: "Buka myXL", label: "Buka myXL Upgrade" }
+            { html: "Akhiri Sesi", label: "Akhiri Sesi" },
           ],
         });
-        // botRespond(3000, showAkhirSesiUpgrade);
       }
 
       function showAkhirSesiUpgrade() {
