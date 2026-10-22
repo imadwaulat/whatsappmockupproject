@@ -3491,7 +3491,6 @@
       let paketFrom = null;
 
       const MENUS = [
-        "Beli Paket Internet",
         "Beli / Aktivasi Paket",
         "Isi Pulsa",
         "Info Akun",
@@ -3574,7 +3573,8 @@
         "Info Registrasi",
         "Info Migrasi",
         "Info Reaktivasi",
-        "⬅️ Kembali",
+        "Kembali",
+        "Menu Utama",
       ];
       const layananKartuSIMListEl = document.getElementById(
         "layananKartuSIMList",
@@ -3635,7 +3635,11 @@
         }
 
         // need to change
-        if (label === "⬅️ Kembali") {
+        if (label === "Menu Utama") {
+          botRespond(1400, showMainMenu);
+          return;
+        }
+        if (label === "Kembali") {
           let templabel = "Info Akun";
           // appendSentBubble(label, timeNow());
           botRespond(1400, () => routeMenu(templabel));
@@ -3843,15 +3847,15 @@
         closeBeliPaketSheet();
         appendSentBubble(label, timeNow());
         if (label === "Beli Paket Internet") {
-          botRespond(1400, showCarouselInternet);
+          botRespond(1400, showBeliPaketInternet);
           return;
         }
         if (label === "Beli Paket International / Roaming") {
-          botRespond(1400, showCarouselRoaming);
+          botRespond(1400, showPaketRoaming);
           return;
         }
         if (label === "Beli Paket Hiburan") {
-          botRespond(1400, showCarouselHiburan);
+          botRespond(1400, showPaketHiburan);
           return;
         }
         if (label === "PROMO HARI INI") {
@@ -3872,23 +3876,26 @@
          Promo Hari Ini
       ───────────────────────────────────────── */
       const PROMO_HARI_INI_DATA = [
-        { nama: "Xtra Combo Plus 75GB", masaAktif: "28 Hari", harga: "Rp 210.375" },
-        { nama: "Xtra Combo Plus 100GB", masaAktif: "28 Hari", harga: "Rp 231.750" },
-        { nama: "Xtra Combo Mini 6GB", masaAktif: "7 Hari", harga: "Rp 25.000" },
+        { nama: "Kuota Nonstop 150 GB", masaAktif: "28 Hari", harga: "Rp150.000" },
+        { nama: "Kuota Nonstop 100GB", masaAktif: "28 Hari", harga: "Rp125.000" },
+        { nama: "Unlimited Harian 2GB", masaAktif: "7 Hari", harga: "Rp25.000" },
       ];
+
+      let _promoAktif = null;
+      let _metodeBayarPromo = "";
 
       function showPromoHariIni() {
         appendBotMessage({
           html:
-            `<strong>Nikmati Paket PROMO HARI INI,<br>` +
-            `Silahkan pilih paket yang ingin Anda Aktifkan.</strong><br><br>` +
+            `PAKET REKOMENDASI HARI INI ✨<br>` +
+            `Yuk pilih paket yang ingin kamu aktifkan!<br><br>` +
             PROMO_HARI_INI_DATA.map(
               (p, i) =>
-                `${i + 1}. <strong>${escHtml(p.nama)}</strong><br>` +
-                `Masa aktif: <strong>${escHtml(p.masaAktif)}</strong><br>` +
-                `Harga: <strong>${escHtml(p.harga)}</strong>`,
-            ).join("<br><br>") +
-            `<br><br>Pilih Promo lebih banyak, cek di aplikasi MySmartfren: <a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>`,
+                `${i + 1}. ${escHtml(p.nama)}<br>` +
+                `Masa aktif: ${escHtml(p.masaAktif)}<br>` +
+                `Harga: ${escHtml(p.harga)}`,
+            ).join("<br>") +
+            `<br><br>Untuk dapatkan promo lebih banyak, cek di aplikasi mySF: <a href="https://mysf.onelink.me/nFIA/76f2c58d" target="_blank">https://mysf.onelink.me/nFIA/76f2c58d</a>`,
           buttons: PROMO_HARI_INI_DATA.map((p, i) => ({
             html: `PAKET PROMO ${i + 1}`,
             label: `Pilih Paket Promo ${i + 1}`,
@@ -3898,8 +3905,7 @@
 
       function pilihPaketPromo(idx) {
         const p = PROMO_HARI_INI_DATA[idx];
-        _carouselProdukAktif = p.nama;
-        _carouselHargaAktif = p.harga;
+        _promoAktif = p;
         appendSentBubble(`PAKET PROMO ${idx + 1}`, timeNow());
         botRespond(1400, () => showDetailPaketPromo(p));
       }
@@ -3908,21 +3914,74 @@
         appendBotMessage({
           html:
             `<strong>${escHtml(p.nama)}</strong><br><br>` +
-            `Berikut adalah rincian paket ${escHtml(p.nama)}:<br><br>` +
-            `✅ Masa Aktif: <strong>${escHtml(p.masaAktif)}</strong><br>` +
-            `✅ Harga Paket: <strong>${escHtml(p.harga)}</strong><br><br>` +
-            `Untuk melanjutkan Pembelian Paket Promo, Silahkan klik Button "<strong>Pilih Pembayaran</strong>" dibawah ini. 👇`,
+            `Berikut adalah rincian paket ${escHtml(p.nama)}:<br>` +
+            `Masa Aktif: <strong>${escHtml(p.masaAktif)}</strong><br>` +
+            `Harga Paket: <strong>${escHtml(p.harga)}</strong><br><br>` +
+            `Lanjutin aktivasi paket internet kamu dengan klik Pilih Pembayaran dibawah ini. 👇`,
           buttons: [
             { html: "Pilih Pembayaran", label: "Pilih Pembayaran Promo" },
-            { html: "⬅️ Kembali", label: "Kembali ke Promo Hari Ini" },
+            { html: "⬅️Kembali", label: "Kembali ke Promo Hari Ini" },
           ],
         });
       }
 
       function showPilihMetodePembayaranPromo() {
+        const now = timeNow();
+        const row = document.createElement("div");
+        row.className = "row in";
+        row.innerHTML = `
+          <div class="list-bubble">
+            <div class="list-body">
+              Dikit lagi beresin transaksimu!<br>
+              Pilih metode pembayaran di bawah ini
+              <div class="ts" style="margin-top:6px;">${now}</div>
+            </div>
+            <div class="list-sep"></div>
+            <button class="list-btn" onclick="openMetodeBayarInternet(this, 'promo')">
+              Bayar
+            </button>
+          </div>
+        `;
+        document.getElementById("chat").appendChild(row);
+        scrollDown();
+      }
+
+      function showKonfirmasiBayarPromo() {
+        const p = _promoAktif;
+        const metode = _metodeBayarPromo;
+        const tujuan =
+          metode === "QRIS"
+            ? "QR Code untuk melakukan pembayaran."
+            : `aplikasi ${escHtml(metode)} untuk melakukan pembayaran.`;
         appendBotMessage({
-          html: `Silakan pilih metode pembayaran yang Anda inginkan :`,
-          buttons: [{ html: "Bayar", label: "Bayar Metode Promo" }],
+          html:
+            `Oke, konfirmasi ya 👍<br><br>` +
+            `Berikut rincian paket data kamu 👇<br><br>` +
+            `Nomor: 6288100000000<br><br>` +
+            `Produk:<br>${escHtml(p.nama)}<br><br>` +
+            `Harga : ${hargaSingkat(p.harga)}<br><br>` +
+            `Total pembayaran:${hargaSingkat(p.harga)}<br>` +
+            `Metode Pembayaran: ${escHtml(metode)}<br><br>` +
+            `✅ Setelah ini, kamu akan diarahkan ke ${tujuan}<br><br>` +
+            `Apakah kamu ingin melanjutkan ke pembayaran?`,
+          buttons: [
+            { html: "Konfirmasi", label: "Konfirmasi Bayar Promo" },
+            { html: "Kembali", label: "Kembali Bayar Promo" },
+          ],
+        });
+      }
+
+      function showArahkanBayarPromo() {
+        const metode = _metodeBayarPromo;
+        const tujuan =
+          metode === "QRIS"
+            ? "halaman QR Code pembayaran"
+            : `aplikasi ${escHtml(metode)}`;
+        appendBotMessage({
+          html:
+            `Oke, Kamu akan kami arahkan ke ${tujuan} ya.<br><br>` +
+            `Silahkan klik tombol berikut untuk menyelesaikan pembayaran:<br>👇`,
+          buttons: [{ html: "Lanjutkan Pembayaran", label: "Lanjutkan Pembayaran Promo" }],
         });
       }
 
@@ -3930,10 +3989,6 @@
          Menu routing
       ───────────────────────────────────────── */
       function routeMenu(label) {
-        if (label === "Beli Paket Internet") {
-          showBeliPaketInternet();
-          return;
-        }
         if (
           label === "Aktivasi / Beli Paket" ||
           label === "Beli / Aktivasi Paket"
@@ -3942,7 +3997,7 @@
           return;
         }
         if (label === "Isi Pulsa") {
-          showCarouselPulsa();
+          showPilihNomorPulsa();
           return;
         }
         if (label === "Lanjut Pembayaran Pulsa") {
@@ -3961,12 +4016,12 @@
           return;
         }
         if (label === "Bantuan") {
-          botRespond(1400, showBantuan);
+          showBantuan();
           return;
         }
         if (label === "Tiket Aktif Lainnya") {
           window.open(
-            "https://my.smartfren.com/",
+            "https://www.smartfren.com/",
             "_blank",
           );
           return;
@@ -4013,7 +4068,7 @@
         }
 
         if (label === "Beli Paket Internet") {
-          showCarouselInternet();
+          showBeliPaketInternet();
           return;
         }
         if (label === "Pilih Paket Promo 1") {
@@ -4029,7 +4084,23 @@
           return;
         }
         if (label === "Kembali ke Promo Hari Ini") {
+          appendSentBubble("⬅️Kembali", timeNow());
           botRespond(1400, showPromoHariIni);
+          return;
+        }
+        if (label === "Konfirmasi Bayar Promo") {
+          appendSentBubble("Konfirmasi", timeNow());
+          botRespond(1400, showArahkanBayarPromo);
+          return;
+        }
+        if (label === "Kembali Bayar Promo") {
+          appendSentBubble("Kembali", timeNow());
+          botRespond(1400, showPilihMetodePembayaranPromo);
+          return;
+        }
+        if (label === "Lanjutkan Pembayaran Promo") {
+          appendSentBubble("Lanjutkan Pembayaran", timeNow());
+          botRespond(1400, () => showSuksesPaketInternet(_promoAktif));
           return;
         }
         if (label === "Beli Sekarang Paket Internet") {
@@ -4065,13 +4136,8 @@
           return;
         }
         if (label === "Pilih Pembayaran Promo") {
+          appendSentBubble("Pilih Pembayaran", timeNow());
           botRespond(1400, showPilihMetodePembayaranPromo);
-          return;
-        }
-        if (label === "Bayar Metode Promo") {
-          btn.disabled = true;
-          _roamingHiburanMode = true;
-          showCarouselPembayaranFlow();
           return;
         }
         if (label === "Pilih Metode Pembayaran Internet") {
@@ -4113,7 +4179,7 @@
           return;
         }
         if (label === "Beli Paket International / Roaming") {
-          showCarouselRoaming();
+          showPaketRoaming();
           return;
         }
         if (label === "Aktifkan Sekarang Roaming") {
@@ -4132,12 +4198,55 @@
           botRespond(1400, showSuksesRoamingHiburan);
           return;
         }
+        if (
+          label === "Upgrade ke Pascabayar Web" ||
+          label === "Beli Nomor Pascabayar Web"
+        ) {
+          // Tombol link ke website: biarkan semua tombol tetap aktif
+          wrap.querySelectorAll(".qr-btn").forEach((b) => {
+            b.disabled = false;
+            b.style.opacity = "";
+            b.style.cursor = "";
+          });
+          window.open("https://www.smartfren.com/", "_blank");
+          return;
+        }
+        if (
+          label === "Bantuan Pelanggan CC" ||
+          label === "Bantuan Outlet CC" ||
+          label === "Bantuan Enterprise CC"
+        ) {
+          appendSentBubble(label.replace(/ CC$/, ""), timeNow());
+          botRespond(1400, showTerhubungCC);
+          return;
+        }
+        if (label === "Nomor ini Pulsa") {
+          appendSentBubble("Nomor ini", timeNow());
+          _nomorPulsa = "6288100000000";
+          botRespond(1400, showTransaksiPulsa);
+          return;
+        }
+        if (label === "Nomor Lain Pulsa") {
+          appendSentBubble("Nomor Lain", timeNow());
+          botRespond(1400, showMintaNomorPulsa);
+          return;
+        }
+        if (label === "Paket Booster Hiburan") {
+          appendSentBubble("Paket Booster", timeNow());
+          botRespond(1400, () => showPilihKategoriHiburan("booster"));
+          return;
+        }
+        if (label === "Paket Combo Hiburan") {
+          appendSentBubble("Paket Combo", timeNow());
+          botRespond(1400, () => showPilihKategoriHiburan("combo"));
+          return;
+        }
         if (label === "Kembali Carousel Roaming") {
           botRespond(1400, showCarouselRoaming);
           return;
         }
         if (label === "Beli Paket Hiburan") {
-          showCarouselHiburan();
+          showPaketHiburan();
           return;
         }
         if (label === "Setuju Paket Hiburan") {
@@ -4165,7 +4274,7 @@
         }
         if (label === "Buka MySmartfren Upgrade") {
           btn.disabled = true;
-          window.open("https://my.smartfren.com/", "_blank");
+          window.open("https://www.smartfren.com/", "_blank");
           return;
         }
         if (label === "Konfirmasi Pembelian Nomor") {
@@ -4267,15 +4376,15 @@
           appendSentBubble(label, timeNow());
           // console.log("kembali dari paket lainnya", paketFrom);
           if (paketFrom === "Beli Paket Internet") {
-            botRespond(1400, showCarouselInternet);
+            botRespond(1400, showBeliPaketInternet);
             return;
           }
           if (paketFrom === "Beli Paket International / Roaming") {
-            botRespond(1400, showCarouselRoaming);
+            botRespond(1400, showPaketRoaming);
             return;
           }
           if (paketFrom === "Beli Paket Hiburan") {
-            botRespond(1400, showCarouselHiburan);
+            botRespond(1400, showPaketHiburan);
             return;
           }
           return;
@@ -4525,13 +4634,325 @@
         ],
       ];
 
+      /* ─────────────────────────────────────────
+         Beli Paket Hiburan
+      ───────────────────────────────────────── */
+      const PAKET_HIBURAN = {
+        booster: [
+          { nama: "Kuota Tiktok 3.5 GB", harga: "Rp. 9.000", masaAktif: "3 Hari" },
+          { nama: "Kuota Sosmed 1.1 GB", harga: "Rp. 4.000", masaAktif: "1 Hari" },
+          { nama: "Kuota Youtube 3.5 GB", harga: "Rp. 9.000", masaAktif: "3 Hari" },
+          { nama: "Kuota Nonton 3.5 GB", harga: "Rp. 9.000", masaAktif: "7 Hari" },
+          { nama: "Kuota Game 5GB", harga: "Rp. 3.500", masaAktif: "3 Hari" },
+        ],
+        combo: [
+          { nama: "FreeFire 50 Diamond 8 GB", harga: "Rp. 16.500", masaAktif: "7 Hari" },
+          { nama: "Vidio PlatinumMobile 7GB", harga: "Rp. 27.500", masaAktif: "30 Hari" },
+          { nama: "VIU 1GB", harga: "Rp. 10.000", masaAktif: "7 Hari" },
+        ],
+      };
+
+      function showPaketHiburan() {
+        appendBotMessage({
+          html:
+            `🎬 Pilih Paket Hiburan Favoritmu!<br><br>` +
+            `Mau nonton, main game, atau dengerin musik? 📺🎮🎧. ` +
+            `Yuk, cek dan pilih paket hiburan Smartfren yang paling cocok buat kamu!👇`,
+          buttons: [
+            { html: "Paket Booster", label: "Paket Booster Hiburan" },
+            { html: "Paket Combo", label: "Paket Combo Hiburan" },
+          ],
+        });
+      }
+
+      function showPilihKategoriHiburan(jenis) {
+        const now = timeNow();
+        const row = document.createElement("div");
+        row.className = "row in";
+        row.innerHTML = `
+          <div class="list-bubble">
+            <div class="list-body">
+              Silahkan pilih kategori produk yang diinginkan
+              <div class="ts" style="margin-top:6px;">${now}</div>
+            </div>
+            <div class="list-sep"></div>
+            <button class="list-btn" onclick="openPaketHiburan(this, '${jenis}')">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round">
+                <line x1="1" y1="2"  x2="17" y2="2"/>
+                <line x1="1" y1="7"  x2="17" y2="7"/>
+                <line x1="1" y1="12" x2="17" y2="12"/>
+              </svg>
+              Pilih Kategori
+            </button>
+          </div>
+        `;
+        document.getElementById("chat").appendChild(row);
+        scrollDown();
+      }
+
+      function openPaketHiburan(btn, jenis) {
+        openPilihPaketInternet(
+          btn,
+          [PAKET_HIBURAN[jenis]],
+          "Pilih Kategori",
+          showBeliPaketInternet,
+        );
+      }
+
+      /* ─────────────────────────────────────────
+         Beli Paket International / Roaming
+      ───────────────────────────────────────── */
+      const PAKET_ROAMING = [
+        {
+          nama: "Singapura Malaysia 1 GB", harga: "Rp. 65.000", masaAktif: "30 Hari",
+          roaming: "1 GB", nasional: "5 GB",
+          negara: "Singapura, Malaysia dan Indonesia",
+        },
+        {
+          nama: "Singapura 5 GB", harga: "Rp. 50.000", masaAktif: "3 Hari",
+          roaming: "5 GB",
+          negara: "Singapura",
+        },
+        {
+          nama: "Asia Australia 1GB", harga: "Rp. 90.000", masaAktif: "30 Hari",
+          roaming: "1 GB",
+          negara: "Asia dan Australia",
+        },
+        {
+          nama: "Asia Australia 8 GB", harga: "Rp. 275.000", masaAktif: "30 Hari",
+          roaming: "8 GB",
+          negara: "Asia dan Australia",
+        },
+        {
+          nama: "Around The World 10 GB", harga: "Rp. 300.000", masaAktif: "15 Hari",
+          roaming: "10 GB",
+          negara: "di seluruh dunia",
+        },
+      ];
+
+      function showPaketRoaming() {
+        const now = timeNow();
+        const row = document.createElement("div");
+        row.className = "row in";
+        row.innerHTML = `
+          <div class="list-bubble">
+            <div class="list-body">
+              ✈️ Paket Roaming<br><br>
+              Ke Luar Negeri makin tenang!<br>
+              Pilih paket roaming internasional yang kami rekomendasikan buat kamu! 👇
+              <div class="ts" style="margin-top:6px;">${now}</div>
+            </div>
+            <div class="list-sep"></div>
+            <button class="list-btn" onclick="openPilihPaketInternet(this, [PAKET_ROAMING], 'Pilih Kategori')">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round">
+                <line x1="1" y1="2"  x2="17" y2="2"/>
+                <line x1="1" y1="7"  x2="17" y2="7"/>
+                <line x1="1" y1="12" x2="17" y2="12"/>
+              </svg>
+              Pilih Kategori
+            </button>
+          </div>
+        `;
+        document.getElementById("chat").appendChild(row);
+        scrollDown();
+      }
+
+      function showKonfirmasiPembelianRoaming(p) {
+        const negara = p.negara.startsWith("di ")
+          ? p.negara
+          : `di negara ${p.negara}`;
+        appendBotMessage({
+          html:
+            `Berikut detail paket yang kamu beli untuk nomor 6288100000000 :<br>` +
+            `${escHtml(p.nama)} (${hargaSingkat(p.harga)} / ${escHtml(p.masaAktif)})` +
+            `<ul style="margin:4px 0 0 18px;padding:0;">` +
+            `<li>Roaming Internet : ${escHtml(p.roaming)}</li>` +
+            (p.nasional ? `<li>Internet Nasional : ${escHtml(p.nasional)}</li>` : "") +
+            `<li>Masa berlaku : ${escHtml(p.masaAktif.toLowerCase())}</li>` +
+            `</ul>` +
+            `Paket berlaku ${escHtml(negara)}.<br>` +
+            `Bisa dibeli saat di Indonesia maupun saat sudah di luar negeri. ` +
+            `Pastikan data roaming ON dan menggunakan APN SMARTFREN 4G.<br>` +
+            `Syarat &amp; ketentuan berlaku.`,
+          buttons: [{ html: "Beli Sekarang", label: "Beli Sekarang Paket Internet" }],
+        });
+      }
+
+      /* ─────────────────────────────────────────
+         Isi Pulsa
+      ───────────────────────────────────────── */
+      const NOMINAL_PULSA = [
+        { nama: "Pulsa 150.000", harga: "Rp. 150.000", masaAktif: "150 Hari", sub: "Rp 150Rb/150 Hari" },
+        { nama: "Pulsa 100.000", harga: "Rp. 100.000", masaAktif: "120 Hari", sub: "Rp 100Rb/120 Hari" },
+        { nama: "Pulsa 75.000", harga: "Rp. 75.000", masaAktif: "75 Hari", sub: "Rp 75Rb/75 Hari" },
+        { nama: "Pulsa 30.000", harga: "Rp. 30.000", masaAktif: "30 Hari", sub: "Rp 30Rb/30 Hari" },
+      ];
+
+      let _nomorPulsa = "6288100000000";
+      let _menungguNomorPulsa = false;
+      // Setelah sesi berakhir, user mengetik "Menu Utama" untuk mulai lagi
+      let _menungguMenuUtama = false;
+
+      function showPilihNomorPulsa() {
+        appendBotMessage({
+          html: `Mau isi pulsa ke nomor mana nih? 😊`,
+          buttons: [
+            { html: "Nomor ini", label: "Nomor ini Pulsa" },
+            { html: "Nomor Lain", label: "Nomor Lain Pulsa" },
+          ],
+        });
+      }
+
+      function showMintaNomorPulsa() {
+        appendBotMessage({
+          html:
+            `<strong>Silahkan sebutkan nomor Smartfren yang mau dibelikan pulsa ya. 😬</strong><br><br>` +
+            `<strong>(Contoh: <em>nomor ini</em> atau <em>6282123456xxx</em>)</strong>`,
+        });
+        _menungguNomorPulsa = true;
+        const field = document.querySelector(".ib-field");
+        field.placeholder = "Ketik nomor, contoh 6282123456xxx";
+        field.focus();
+      }
+
+      function kirimInputChat() {
+        const field = document.querySelector(".ib-field");
+        const text = field.value.trim();
+        if (!text) return;
+        if (_menungguMenuUtama && /^menu utama$/i.test(text)) {
+          field.value = "";
+          appendSentBubble(text, timeNow());
+          _menungguMenuUtama = false;
+          botRespond(1400, showMainMenu);
+          return;
+        }
+        if (!_menungguNomorPulsa) return;
+        field.value = "";
+        appendSentBubble(text, timeNow());
+
+        let nomor = null;
+        if (/^nomor ini$/i.test(text)) {
+          nomor = "6288100000000";
+        } else {
+          const digits = text.replace(/[\s-]/g, "");
+          if (/^(62|0)8\d{7,12}$/.test(digits))
+            nomor = digits.replace(/^0/, "62");
+        }
+        if (!nomor) {
+          botRespond(1400, () =>
+            appendBotMessage({
+              html: `Maaf, nomor yang kamu masukkan tidak valid. Silahkan masukkan nomor Smartfren yang benar ya. (Contoh: <em>6282123456xxx</em>)`,
+            }),
+          );
+          return;
+        }
+        _menungguNomorPulsa = false;
+        field.placeholder = "Message";
+        _nomorPulsa = nomor;
+        botRespond(1400, showTransaksiPulsa);
+      }
+
+      document.querySelector(".ib-send").addEventListener("click", kirimInputChat);
+      document.querySelector(".ib-field").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") kirimInputChat();
+      });
+
+      function showTransaksiPulsa() {
+        const now = timeNow();
+        const row = document.createElement("div");
+        row.className = "row in";
+        row.innerHTML = `
+          <div class="list-bubble">
+            <div class="list-body">
+              Oke, Transaksi ke nomor <strong><u>${escHtml(_nomorPulsa)}</u></strong> ya!<br><br>
+              Pilih pulsa yang kamu mau, ada beberapa pilihan menarik nih 👇
+              <div class="ts" style="margin-top:6px;">${now}</div>
+            </div>
+            <div class="list-sep"></div>
+            <button class="list-btn" onclick="openNominalPulsa(this)">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round">
+                <line x1="1" y1="2"  x2="17" y2="2"/>
+                <line x1="1" y1="7"  x2="17" y2="7"/>
+                <line x1="1" y1="12" x2="17" y2="12"/>
+              </svg>
+              Pilih Nominal
+            </button>
+          </div>
+        `;
+        document.getElementById("chat").appendChild(row);
+        scrollDown();
+      }
+
+      function openNominalPulsa(btn) {
+        openPilihPaketInternet(
+          btn,
+          [NOMINAL_PULSA.map((p) => ({ ...p, pulsa: true, nomor: _nomorPulsa }))],
+          "Pilih Nominal",
+          showNominalPulsaLainnya,
+          { lainnyaLabel: "Pilih Nominal Lainnya", onSebelumnya: showPilihNomorPulsa },
+        );
+      }
+
+      function showNominalPulsaLainnya() {
+        appendBotMessage({
+          html:
+            `<strong>Pulsa dengan nominal lain mulai dari 5.000 bisa kamu beli di aplikasi mySF</strong><br><br>` +
+            `<strong>Klik <a href="https://s.id/IsiPulsamySF" target="_blank">https://s.id/IsiPulsamySF</a> untuk beli nominal lainnya!</strong>`,
+        });
+      }
+
+      function showKonfirmasiPulsa(p) {
+        const now = timeNow();
+        const row = document.createElement("div");
+        row.className = "row in";
+        row.innerHTML = `
+          <div class="list-bubble">
+            <div class="list-body">
+              Oke, isi ${escHtml(p.nama)} ya<br><br>
+              Pastikan Kamu memiliki <strong>akun aktif</strong> dan <strong>saldo yang mencukupi</strong> dari metode pembayaran yang Kamu pilih ya! 😊<br><br>
+              Silahkan pilih metode pembayaran berikut:
+              <div class="ts" style="margin-top:6px;">${now}</div>
+            </div>
+            <div class="list-sep"></div>
+            <button class="list-btn" onclick="openMetodeBayarInternet(this)">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round">
+                <line x1="1" y1="2"  x2="17" y2="2"/>
+                <line x1="1" y1="7"  x2="17" y2="7"/>
+                <line x1="1" y1="12" x2="17" y2="12"/>
+              </svg>
+              Metode Pembayaran
+            </button>
+          </div>
+        `;
+        document.getElementById("chat").appendChild(row);
+        scrollDown();
+      }
+
       let paketInternetPage = 0;
       let chosenPaketInternet = null;
       let pilihPaketInternetBtn = null;
 
-      function openPilihPaketInternet(btn) {
+      let paketSheetPages = PAKET_INTERNET_PAGES;
+      // Dipanggil saat "Paket Data Lainnya" dipilih di halaman terakhir sheet
+      let paketSheetLainnya = null;
+      // { lainnyaLabel, onSebelumnya }
+      let paketSheetOpts = {};
+
+      function openPilihPaketInternet(
+        btn,
+        pages = PAKET_INTERNET_PAGES,
+        title = "Pilih Paket",
+        onLainnya = null,
+        opts = {},
+      ) {
         pilihPaketInternetBtn = btn;
+        paketSheetPages = pages;
+        paketSheetLainnya = onLainnya;
+        paketSheetOpts = opts;
         paketInternetPage = 0;
+        document.querySelector(
+          "#overlayPilihPaketInternet .sheet-head-title",
+        ).textContent = title;
         renderPilihPaketInternet();
         document
           .getElementById("overlayPilihPaketInternet")
@@ -4540,11 +4961,16 @@
 
       function renderPilihPaketInternet() {
         const listEl = document.getElementById("pilihPaketInternetList");
-        const page = PAKET_INTERNET_PAGES[paketInternetPage];
+        const page = paketSheetPages[paketInternetPage];
         const items = page.map((p) => ({ type: "paket", paket: p }));
-        if (paketInternetPage < PAKET_INTERNET_PAGES.length - 1)
-          items.push({ type: "lainnya", label: "Paket Data Lainnya" });
+        if (paketInternetPage < paketSheetPages.length - 1 || paketSheetLainnya)
+          items.push({
+            type: "lainnya",
+            label: paketSheetOpts.lainnyaLabel || "Paket Data Lainnya",
+          });
         items.push({ type: "menu", label: "Menu Utama" });
+        if (paketSheetOpts.onSebelumnya)
+          items.push({ type: "sebelumnya", label: "Menu Sebelumnya" });
 
         listEl.innerHTML = "";
         items.forEach((item) => {
@@ -4552,7 +4978,7 @@
           div.className = "sheet-item";
           const label =
             item.type === "paket"
-              ? `${escHtml(item.paket.nama)}<span class="item-sub">${escHtml(item.paket.harga)} | ${escHtml(item.paket.masaAktif)}</span>`
+              ? `${escHtml(item.paket.nama)}<span class="item-sub">${escHtml(item.paket.sub || `${item.paket.harga} | ${item.paket.masaAktif}`)}</span>`
               : escHtml(item.label);
           div.innerHTML = `
             <span class="item-label">${label}</span>
@@ -4590,7 +5016,10 @@
         if (!item) return;
 
         // "Paket Data Lainnya" moves to the next screen inside the sheet
-        if (item.type === "lainnya") {
+        if (
+          item.type === "lainnya" &&
+          paketInternetPage < paketSheetPages.length - 1
+        ) {
           paketInternetPage++;
           renderPilihPaketInternet();
           return;
@@ -4609,10 +5038,25 @@
           return;
         }
 
+        if (item.type === "lainnya") {
+          appendSentBubble(item.label, timeNow());
+          botRespond(1400, paketSheetLainnya);
+          return;
+        }
+
+        if (item.type === "sebelumnya") {
+          appendSentBubble("Menu Sebelumnya", timeNow());
+          botRespond(1400, paketSheetOpts.onSebelumnya);
+          return;
+        }
+
         const p = item.paket;
         _carouselProdukAktif = p.nama;
         _carouselHargaAktif = p.harga;
-        appendSentBubble(`${p.nama} (${p.harga} | ${p.masaAktif})`, timeNow());
+        appendSentBubble(
+          p.sub ? p.nama : `${p.nama} (${p.harga} | ${p.masaAktif})`,
+          timeNow(),
+        );
         botRespond(1400, () => showKonfirmasiPembelianInternet(p));
       }
 
@@ -4629,7 +5073,15 @@
 
       function showKonfirmasiPembelianInternet(p) {
         _paketInternetAktif = p;
-        const gb = (p.nama.match(/(\d+)\s*GB/i) || [])[1];
+        if (p.roaming) {
+          showKonfirmasiPembelianRoaming(p);
+          return;
+        }
+        if (p.pulsa) {
+          showKonfirmasiPulsa(p);
+          return;
+        }
+        const gb = (p.nama.match(/(\d+(?:\.\d+)?)\s*GB/i) || [])[1];
         const internet = p.nama.startsWith("Unlimited")
           ? `Unlimited (${gb} GB/hari kecepatan penuh)`
           : `${gb} GB`;
@@ -4684,8 +5136,11 @@
         { label: "Menu Utama" },
       ];
 
-      function openMetodeBayarInternet(btn) {
+      let _metodeBayarMode = "internet";
+
+      function openMetodeBayarInternet(btn, mode = "internet") {
         metodeBayarInternetBtn = btn;
+        _metodeBayarMode = mode;
         const listEl = document.getElementById("metodeBayarInternetList");
         listEl.innerHTML = "";
         METODE_BAYAR_INTERNET.forEach((m) => {
@@ -4736,6 +5191,19 @@
           metodeBayarInternetBtn.style.cursor = "default";
         }
         appendSentBubble(label, timeNow());
+        if (_metodeBayarMode === "promo") {
+          if (label === "Menu Sebelumnya") {
+            botRespond(1400, () => showDetailPaketPromo(_promoAktif));
+            return;
+          }
+          if (label === "Menu Utama") {
+            botRespond(1400, showMainMenu);
+            return;
+          }
+          _metodeBayarPromo = label;
+          botRespond(1400, showKonfirmasiBayarPromo);
+          return;
+        }
         if (label === "Menu Sebelumnya") {
           botRespond(1400, () => showKonfirmasiPembelianInternet(_paketInternetAktif));
           return;
@@ -4762,12 +5230,11 @@
         });
       }
 
-      function showSuksesPaketInternet() {
-        const p = _paketInternetAktif;
+      function showSuksesPaketInternet(p = _paketInternetAktif) {
         appendBotMessage({
           html:
-            `<em>Pengisian ${escHtml(p.nama)} ${escHtml(p.masaAktif)} berhasil</em> 🎊<br><br>` +
-            `Kamu berhasil isi pulsa/kuota ke nomor <strong>6288100000000</strong><br><br>` +
+            `<em>Pengisian ${escHtml(p.nama)}${p.pulsa ? "" : " " + escHtml(p.masaAktif)} berhasil</em> 🎊<br><br>` +
+            `Kamu berhasil isi pulsa/kuota ke nomor <strong>${escHtml(p.nomor || "6288100000000")}</strong><br><br>` +
             `<strong>Saldo Kamu saat ini:</strong><br>` +
             `📱 Pulsa Utama: <strong>Rp 0</strong><br>` +
             `📶 Total kuota: <strong>3.05 GB</strong><br>` +
@@ -4790,8 +5257,8 @@
         appendBotMessage({
           html:
             `Oke, konfirmasi ya 👍<br><br>` +
-            `Berikut rincian paket data kamu 👇<br><br>` +
-            `Nomor: 6288100000000<br><br>` +
+            `Berikut rincian ${p.pulsa ? "pembelian pulsa" : "paket data"} kamu 👇<br><br>` +
+            `Nomor: ${escHtml(p.nomor || "6288100000000")}<br><br>` +
             `Produk:<br>${escHtml(p.nama)}<br><br>` +
             `Harga : ${hargaSingkat(p.harga)}<br><br>` +
             `Total pembayaran:${hargaSingkat(p.harga)}<br>` +
@@ -5141,16 +5608,16 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              <strong>Paket A</strong> : Xtra Combo Plus L+<br>
-              &nbsp;&nbsp;&bull; Sisa Kuota : 30 GB<br>
+              <strong>Paket A</strong> : Paket Kuota Reguler L (12 GB + bonus)<br>
+              &nbsp;&nbsp;&bull; Sisa Kuota : 9 GB<br>
               &nbsp;&nbsp;&bull; Menit : 200 Menit<br>
               &nbsp;&nbsp;&bull; SMS : 200 SMS<br>
-              &nbsp;&nbsp;&bull; Berlaku sampai : 30 Juni 2026<br><br>
-              <strong>Paket B</strong> : Xtra Combo Plus M<br>
-              &nbsp;&nbsp;&bull; Sisa Kuota : 30 GB<br>
+              &nbsp;&nbsp;&bull; Berlaku sampai : 15 November 2026<br><br>
+              <strong>Paket B</strong> : Paket Kuota Reguler M (6 GB + bonus)<br>
+              &nbsp;&nbsp;&bull; Sisa Kuota : 4 GB<br>
               &nbsp;&nbsp;&bull; Menit : 200 Menit<br>
               &nbsp;&nbsp;&bull; SMS : 200 SMS<br>
-              &nbsp;&nbsp;&bull; Berlaku sampai : 20 Juli 2026
+              &nbsp;&nbsp;&bull; Berlaku sampai : 20 November 2026
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5220,16 +5687,16 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              <strong>Paket Subscription</strong> : Nama Paket<br>
+              <strong>Paket Subscription</strong> : Vidio PlatinumMobile 7GB<br>
               &nbsp;&nbsp;&bull; Akses Premium : Ya<br>
-              &nbsp;&nbsp;&bull; Remaining Data : XX GB<br>
-              &nbsp;&nbsp;&bull; Sisa Masa Aktif : XX Hari<br>
-              &nbsp;&nbsp;&bull; Berlaku s/d : DD MM YYYY<br><br>
-              <strong>Paket Subscription</strong> : Nama Paket<br>
+              &nbsp;&nbsp;&bull; Remaining Data : 5 GB<br>
+              &nbsp;&nbsp;&bull; Sisa Masa Aktif : 24 Hari<br>
+              &nbsp;&nbsp;&bull; Berlaku s/d : 15 November 2026<br><br>
+              <strong>Paket Subscription</strong> : VIU 1GB<br>
               &nbsp;&nbsp;&bull; Akses Premium : Ya<br>
-              &nbsp;&nbsp;&bull; Remaining Data : XX GB<br>
-              &nbsp;&nbsp;&bull; Sisa Masa Aktif : XX Hari<br>
-              &nbsp;&nbsp;&bull; Berlaku s/d : DD MM YYYY
+              &nbsp;&nbsp;&bull; Remaining Data : 0.5 GB<br>
+              &nbsp;&nbsp;&bull; Sisa Masa Aktif : 5 Hari<br>
+              &nbsp;&nbsp;&bull; Berlaku s/d : 27 Oktober 2026
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5287,11 +5754,12 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              👋 Hai, Berikut adalah Personal Data, dan informasi dari akun <strong>0881-0000-0000</strong> :<br><br>
-              &bull; Nama : <strong>Smartfren User</strong><br>
-              &bull; Alamat : <strong>Jl H. Rasuna Said</strong><br>
-              &bull; Email : <strong>user@smartfren.com</strong><br><br>
-              Untuk melihat informasi selengkapnya silakan download Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>.
+              Hai 👋<br><br>
+              Berikut adalah data pribadi dan informasi dari akun 6288100000000 :<br><br>
+              &bull; Nama: Smartfren User<br>
+              &bull; Alamat: Jl. H. R. Rasuna Said<br>
+              &bull; Email: user@smartfren.com<br><br>
+              Untuk cek informasi lengkap, download aplikasi mySF: <a href="https://mysf.onelink.me/nFIA/76f2c58d" target="_blank">https://mysf.onelink.me/nFIA/76f2c58d</a>
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5326,18 +5794,18 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              <strong>Berikut Riwayat transaksi di bulan ini :</strong><br><br>
-              <strong>Tanggal 01/06/2026, 21:40</strong><br>
-              Xtra Combo Flex S ; Rp101.500 ; Success<br><br>
-              <strong>Tanggal 01/05/2026, 21:40</strong><br>
-              Xtra Combo Flex M ; Rp101.500 ; Success<br><br>
-              <strong>Tanggal 01/04/2026, 21:40</strong><br>
-              Xtra Combo Flex M+ ; Rp101.500 ; Success<br><br>
-              <strong>Tanggal 01/03/2026, 21:40</strong><br>
-              Xtra Combo Flex L ; Rp101.500 ; Success<br><br>
-              <strong>Tanggal 01/02/2026, 21:40</strong><br>
-              Xtra Combo Flex L+ ; Rp10.000 ; Success<br><br>
-              <strong>Info transaksi lengkap cek ke Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>.</strong>
+              Berikut riwayat transaksi di bulan ini:<br><br>
+              21/10/2026, 19:12<br>
+              Paket Kuota Reguler M (6 GB + bonus) ; Rp38.000 ; Success<br><br>
+              20/10/2026, 08:30<br>
+              VIU 1GB ; Rp10.000 ; Success<br><br>
+              15/10/2026, 21:40<br>
+              Paket Kuota Reguler L (12 GB + bonus) ; Rp55.000 ; Success<br><br>
+              15/10/2026, 21:05<br>
+              Vidio PlatinumMobile 7GB ; Rp27.500 ; Success<br><br>
+              03/10/2026, 10:18<br>
+              Pulsa 30.000 ; Rp30.000 ; Success<br><br>
+              Untuk cek informasi transaksi lengkap, buka aplikasi mySF: <a href="https://mysf.onelink.me/nFIA/76f2c58d" target="_blank">https://mysf.onelink.me/nFIA/76f2c58d</a>
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5366,7 +5834,7 @@
         if (label === "Menu Utama") botRespond(1400, showMainMenu);
         if (label === "Ke MySmartfren") {
           window.open(
-            "https://my.smartfren.com/",
+            "https://www.smartfren.com/",
             "_blank",
           );
         }
@@ -5389,9 +5857,9 @@
       }
 
       const _simInfoBody = `
-        Nomor ICCID: <strong>0881-0000-0000</strong><br>
-        PUK: <strong>123456789</strong><br>
-        voLTE Device : <strong>Ready</strong><br><br>
+        Nomor ICCID: 8962090012345678901<br>
+        PUK: 12345678<br>
+        voLTE Device : Ready<br><br>
       `;
 
       function showSIMDevice() {
@@ -5420,9 +5888,9 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              <strong>Kartu anda Aktif ✅</strong><br><br>
+              Kartu kamu Aktif ✅<br><br>
               ${_simInfoBody}
-              Untuk melihat informasi selengkapnya silakan download Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>.
+              Untuk cek informasi lengkap, kunjungi website Smartfren: <a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5567,7 +6035,7 @@
               &bull; <strong>Cek Nomor Prabayar yang terdaftar pada NIK Anda</strong><br>
               &bull; <strong>Pembaruan registrasi (Registrasi ulang)</strong><br>
               &bull; <strong>Unreg</strong><br><br>
-              Untuk melihat informasi selengkapnya silakan download Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>.
+              Untuk melihat informasi selengkapnya silakan download Apps MySmartfren:<a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>.
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5592,7 +6060,7 @@
         appendSentBubble(label, timeNow());
         if (label === "Apps MySmartfren") {
           window.open(
-            "https://my.smartfren.com/",
+            "https://www.smartfren.com/",
             "_blank",
           );
         }
@@ -5607,17 +6075,17 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              Anda dapat melakukan <strong>Upgrade</strong> atau <strong>Migrasi SIM</strong> untuk nomor Anda melalui layanan berikut.<br><br>
-              &bull; <strong>Migrasi dari uSIM ke eSIM</strong><br>
-              &bull; <strong>Migrasi dari eSIM ke eSIM (device transfer)</strong><br>
-              &bull; <strong>eSIM hilang / eSIM rusak</strong><br>
-              &bull; <strong>Migrasi dari eSIM ke uSIM</strong><br>
-              &bull; <strong>Hilang / uSIM rusak</strong><br><br>
-              Silakan Unduh Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a> untuk bisa menikmati Layanan tersebut.
+              Kamu dapat melakukan Upgrade atau Migrasi SIM untuk nomormu melalui layanan berikut:<br><br>
+              &bull; Migrasi dari uSIM ke eSIM<br>
+              &bull; Migrasi dari eSIM ke eSIM (device transfer)<br>
+              &bull; eSIM hilang / eSIM rusak<br>
+              &bull; Migrasi dari eSIM ke uSIM<br>
+              &bull; Hilang / uSIM rusak<br><br>
+              Kunjungi website Smartfren: <a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a> untuk bisa menikmati Layanan tersebut.
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
-            <button class="list-btn" onclick="pilihMigrasiBtn(this,'Kembali Migrasi')">⬅️ Kembali</button>
+            <button class="list-btn" onclick="pilihMigrasiBtn(this,'Kembali Migrasi')">Kembali</button>
             </div>
             `;
         // <button class="list-btn" onclick="pilihMigrasiBtn(this,'Info Layanan Kartu Lainnya')">Info Layanan Kartu Lainnya</button>
@@ -5635,7 +6103,7 @@
             b.style.opacity = ".45";
             b.style.cursor = "default";
           });
-        appendSentBubble(label, timeNow());
+        appendSentBubble(label === "Kembali Migrasi" ? "Kembali" : label, timeNow());
         if (label === "Info Layanan Kartu Lainnya")
           botRespond(1400, showLayananKartu);
         if (label === "Kembali Migrasi") botRespond(1400, showSIMAktif);
@@ -5649,16 +6117,16 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              Saat ini nomor Anda ✅<strong>Aktif sampai dengan 27 Jun 2027</strong><br><br>
-              Info Reaktivasi :<br><br>
-              <strong>1. Unduh Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>, pilih Layanan kartu, lalu pilih Reaktivasi dan ikuti langkahnya.</strong><br><br>
-              <strong>2. Ke gerai Galeri Smartfren terdekat di Kota Anda</strong>
+              Saat ini nomor kamu <strong>aktif</strong> sampai 27 Jun 2027<br><br>
+              Info Reaktivasi:<br><br>
+              1. Kunjungi website Smartfren: <a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>, pilih Layanan kartu, lalu pilih Reaktivasi dan ikuti langkahnya.<br><br>
+              2. Kunjungi gerai Galeri Smartfren terdekat di kotamu.
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
             <button class="list-btn" onclick="pilihReaktivasiSIMBtn(this,'Reaktivasi Kartu Online')">Reaktivasi Kartu Online</button>
             <button class="list-btn" onclick="pilihReaktivasiSIMBtn(this,'Reaktivasi Kartu Offline (Galeri Smartfren)')">Reaktivasi Kartu Offline (Galeri Smartfren)</button>
-            <button class="list-btn" onclick="pilihReaktivasiSIMBtn(this,'Kembali Reaktivasi')">⬅️ Kembali</button>
+            <button class="list-btn" onclick="pilihReaktivasiSIMBtn(this,'Kembali Reaktivasi')">Kembali</button>
           </div>
         `;
         document.getElementById("chat").appendChild(row);
@@ -5674,7 +6142,7 @@
             b.style.opacity = ".45";
             b.style.cursor = "default";
           });
-        appendSentBubble(label, timeNow());
+        appendSentBubble(label === "Kembali Reaktivasi" ? "Kembali" : label, timeNow());
         if (label === "Reaktivasi Kartu Online")
           botRespond(1400, showReaktivasiOnline);
         if (label === "Reaktivasi Kartu Offline (Galeri Smartfren)")
@@ -5698,11 +6166,11 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              Untuk Mengetahui Lokasi Galeri Smartfren Terdekat, silahkan klik Button "<strong>Lokasi Galeri Smartfren Terdekat</strong>" dibawah ini
+              Untuk cek lokasi Galeri Smartfren Terdekat, silahkan klik Button Lokasi Galeri Smartfren Terdekat di bawah ini
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
-            <button class="list-btn" onclick="window.open('https://www.smartfren.com/galeri-smartfren/','_blank');">
+            <button class="list-btn" onclick="window.open('https://www.smartfren.com/','_blank');">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                 <polyline points="15 3 21 3 21 9"/>
@@ -5893,16 +6361,17 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              Hai, <strong>Smartfren User</strong> 👋<br><br>
-              Berikut info data Anda untuk nomor <strong>0881-0000-0000</strong>:<br><br>
-              Status : ✅<strong>Kartu Anda AKTIF</strong><br>
-              💰Sisa Pulsa: <strong>Rp 55.000</strong><br>
-              📶Sisa Internet: <strong>5 GB</strong><br><br>
-              Paket Aktif :<br>
-              <strong>Xtra Combo Plus L+ 26 GB</strong><br><br>
-              (Subscription) Layanan tambahan :<br>
-              <strong>Disney+ 7 hari</strong><br><br>
-              Mau info lainnya? Silakan pilih di bawah ini. 👇👇
+              Hai, Smartfren User 👋<br><br>
+              Berikut info data anda untuk nomor 6288100000000:<br><br>
+              Status:<br>
+              - Kartu kamu AKTIF<br>
+              - Sisa Pulsa: Rp 55.000<br>
+              - Sisa Kuota: 5 GB<br><br>
+              Paket Aktif:<br>
+              Kuota Nonstop 150 GB<br><br>
+              (Subscription) Layanan tambahan:<br>
+              Vidio PlatinumMobile 7GB, VIU 1GB<br><br>
+              Klik button di bawah ini untuk info lainnya 👇
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
@@ -5953,7 +6422,7 @@
           });
         appendSentBubble(label, timeNow());
         if (label === "Beli Paket") botRespond(1400, showAktivasi);
-        if (label === "Isi Pulsa") botRespond(1400, showCarouselPulsa);
+        if (label === "Isi Pulsa") botRespond(1400, showPilihNomorPulsa);
       }
 
       function showInfoAkunCancel() {
@@ -6547,7 +7016,7 @@
         // document.getElementById("chat").appendChild(row);
         // scrollDown();
         appendBotMessage({
-          html: `Untuk berlangganan internet rumah silakan kunjungi halaman website <br><br><strong><a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a></strong><br>`,
+          html: `Untuk berlangganan internet rumah, silakan kunjungi halaman website:<br><br><a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>`,
           buttons: [
             // {
             //   html: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -6958,7 +7427,7 @@
         // row.innerHTML = `
         //   <div class="list-bubble">
         //     <div class="list-body">Untuk melihat paket menarik lainnya silakan kunjungi aplikasi MySmartfren<br><br>
-        //       <strong><a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a></strong><br><div class="ts" style="margin-top:6px;">${now}</div></div>
+        //       <strong><a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a></strong><br><div class="ts" style="margin-top:6px;">${now}</div></div>
         //     <div class="list-sep"></div>
         //     <button class="list-btn" onclick="window.open('#','_blank')">
         //       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -6970,7 +7439,7 @@
         // scrollDown();
 
         appendBotMessage({
-          html: `Untuk melihat paket menarik lainnya silakan kunjungi aplikasi MySmartfren<br><br><strong><a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a></strong><br>`,
+          html: `Untuk melihat paket menarik lainnya silakan kunjungi aplikasi MySmartfren<br><br><strong><a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a></strong><br>`,
           buttons: [
             // {
             //   html: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -8522,7 +8991,7 @@
             `• <strong>Nomor Tiket:</strong> #C2001234567<br>` +
             `• <strong>Kategori Kendala:</strong> Jaringan<br>` +
             `• <strong>Status Tiket:</strong> Masalah sedang ditangani<br><br>` +
-            `Untuk melihat detail riwayat tiket bantuan, anda dapat mengunjungi Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>`,
+            `Untuk melihat detail riwayat tiket bantuan, anda dapat mengunjungi Apps MySmartfren:<a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>`,
           buttons: [
             { html: "⬅️Kembali", label: "Bantuan" },
             // { html: "🎫Tiket Aktif Lainnya", label: "Tiket Aktif Lainnya" },
@@ -8608,7 +9077,7 @@
         appendBotMessage({
           html:
             `<strong>Jenis Paket Yang Bisa Dinikmati Oleh Smartfren Prabayar</strong><br><br>` +
-            `Ada berbagai paket yang bisa kamu nikmati jika menggunakan Smartfren Prabayar. Aktivasi paket dapat dilakukan melalui *808# atau Apps MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>.<br><br>` +
+            `Ada berbagai paket yang bisa kamu nikmati jika menggunakan Smartfren Prabayar. Aktivasi paket dapat dilakukan melalui *808# atau Apps MySmartfren:<a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>.<br><br>` +
             `1. Paket Internet &nbsp;&nbsp; 2. Paket Nelpon &amp; SMS<br><br>` +
             `Paket Nelpon: Nelpon sepuasnya ke sesama Smartfren.<br>` +
             `Nelpon ke semua operator: Xtra Hemat nelpon ke semua operator.<br>` +
@@ -8626,8 +9095,8 @@
           html:
             `<strong>Syarat Ketentuan Bebas Puas</strong><br><br>` +
             `Paket Bebas Puas berlaku untuk pelanggan Smartfren Prabayar.<br>` +
-            `Paket Bebas Puas hanya tersedia di aplikasi MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a> atau di toko pulsa.<br>` +
-            `Pilihan Masa Aktif paket Bebas Puas adalah 1 hari (24 jam), 3 hari (72 jam), 5 hari (120 jam) &amp; 10 hari (240 jam) di aplikasi MySmartfren:<a href="https://my.smartfren.com/" target="_blank">https://my.smartfren.com/</a>, untuk variant di paket di toko pulsa mulai dari 1 hari (24 jam) hingga 30 hari (720 jam).<br>` +
+            `Paket Bebas Puas hanya tersedia di aplikasi MySmartfren:<a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a> atau di toko pulsa.<br>` +
+            `Pilihan Masa Aktif paket Bebas Puas adalah 1 hari (24 jam), 3 hari (72 jam), 5 hari (120 jam) &amp; 10 hari (240 jam) di aplikasi MySmartfren:<a href="https://www.smartfren.com/" target="_blank">https://www.smartfren.com/</a>, untuk variant di paket di toko pulsa mulai dari 1 hari (24 jam) hingga 30 hari (720 jam).<br>` +
             `Pelanggan akan mendapatkan Kuota Utama yang berbeda berdasarkan kota atau area dimana pelanggan berada.`,
           buttons: [
             { html: "⬅️Kembali", label: "FAQ" },
@@ -8673,30 +9142,30 @@
          Menu Bantuan
       ───────────────────────────────────────── */
       function showBantuan() {
-        const now = timeNow();
-        const row = document.createElement("div");
-        row.className = "row in";
-        row.innerHTML = `
-          <div class="list-bubble">
-            <div class="list-body">
-              Tiket Anda : <strong>Tidak Ada Tiket Active</strong><br><br>
-              Ada yang bisa kami bantu ?<br><br>
-              Silakan klik Button "<strong>Bantuan</strong>" di bawah ini untuk bantuan lebih lanjut👇👇
-              <div class="ts" style="margin-top:6px;">${now}</div>
-            </div>
-            <div class="list-sep"></div>
-            <button class="list-btn" onclick="openBantuanMenu(this)">
-              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round">
-                <line x1="1" y1="2"  x2="17" y2="2"/>
-                <line x1="1" y1="7"  x2="17" y2="7"/>
-                <line x1="1" y1="12" x2="17" y2="12"/>
-              </svg>
-              Bantuan
-            </button>
-          </div>
-        `;
-        document.getElementById("chat").appendChild(row);
-        scrollDown();
+        appendBotMessage({
+          html:
+            `Oke, anda ingin terhubung dengan Customer Care Representative Smartfren ya.<br><br>` +
+            `Silahkan pilih layanan Bantuan yang Anda inginkan 👇`,
+          buttons: [
+            { html: "Bantuan Pelanggan", label: "Bantuan Pelanggan CC" },
+            { html: "Bantuan Outlet", label: "Bantuan Outlet CC" },
+            { html: "Bantuan Enterprise", label: "Bantuan Enterprise CC" },
+          ],
+        });
+      }
+
+      function showTerhubungCC() {
+        appendBotMessage({
+          html:
+            `Kamu telah terhubung dengan Smartfren Care.<br><br>` +
+            `Fitur sticker tidak dapat ditampilkan dan pastikan file yg kamu kirimkan tidak melebihi 10 MB.<br><br>` +
+            `Pesan selanjutnya merupakan balasan dari Customer Care Representative kami.`,
+        });
+        botRespond(1400, () =>
+          appendBotMessage({
+            html: `Hai teman Smartfren 👋. Aku Sarah, asisten virtual Smartfren, siap membantu.`,
+          }),
+        );
       }
 
       function openBantuanMenu(btn) {
@@ -8735,11 +9204,11 @@
         row.innerHTML = `
           <div class="list-bubble">
             <div class="list-body">
-              Untuk aktivasi silakan kunjungi halaman website <strong>Smartfren</strong> di bawah dengan klik tombol <strong>Registrasi Smartfren👇👇</strong>
+              Silakan kunjungi halaman website Smartfren untuk aktivasi dengan klik tombol Registrasi di bawah 👇
               <div class="ts" style="margin-top:6px;">${now}</div>
             </div>
             <div class="list-sep"></div>
-            <button class="list-btn" onclick="window.open('https://www.smartfren.com/registrasi/','_blank');">
+            <button class="list-btn" onclick="window.open('https://www.smartfren.com/','_blank');">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#128C7E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                 <polyline points="15 3 21 3 21 9"/>
@@ -8759,12 +9228,12 @@
       function showSesiSelesaiReaktivasi() {
         appendBotMessage({
           html:
-            `<strong>👋 Sesi percakapan Anda telah berakhir.<br>` +
-            `Jika Anda ingin melanjutkan atau mengakses layanan lainnya, silakan ketik:<br><br>` +
-            `🏠 "Menu Utama"<br><br>` +
-            `Kami siap membantu Anda kapan saja. 😊</strong>`,
-          buttons: [{ html: "🏠 Menu Utama", label: "Kembali ke Menu Utama" }],
+            `Sesi percakapan anda telah berakhir.<br><br>` +
+            `Untuk melanjutkan atau akses layanan lainnya, silakan ketik:<br><br>` +
+            `Menu Utama<br><br>` +
+            `Kami siap membantu kapan saja. 😊`,
         });
+        _menungguMenuUtama = true;
       }
 
       /* ─────────────────────────────────────────
@@ -9153,7 +9622,7 @@
         appendBotMessage({
           html:
             `✅<strong>Terima kasih</strong><br><br>Pengajuanmu untuk <strong>Upgrade</strong> menjadi <strong>Prioritas</strong> sedang diproses.<br><br>` +
-            `Anda dapat mengecek status Upgrade Prioritas dengan cara Cek Email atau SMS Anda secara berkala atau bisa melalui <a href="https://my.smartfren.com/" target="_blank"> Apps MySmartfren</a>.`,
+            `Anda dapat mengecek status Upgrade Prioritas dengan cara Cek Email atau SMS Anda secara berkala atau bisa melalui <a href="https://www.smartfren.com/" target="_blank"> Apps MySmartfren</a>.`,
           buttons: [
             { html: "🏠 Menu Utama", label: "Kembali ke Menu Utama" },
             { html: "Akhiri Sesi", label: "Akhiri Sesi" },
@@ -9179,17 +9648,18 @@
       ───────────────────────────────────────── */
       function showUpgradePenawaranInfo() {
         appendBotMessage({
-          hasImg: true,
           html:
-            `<strong>Saatnya Upgrade Jadi Pascabayar</strong><br><br>` +
-            `<strong>Mengapa Pilih Pascabayar?</strong><br>` +
-            `• Kuota Super Besar (80GB): Bebas streaming dan produktif sepanjang bulan.<br>` +
-            `• Ekstra Bonus Premium: Akses hiburan dan kuota tambahan khusus untuk Anda.<br>` +
-            `• Ganti ke Pascabayar: Kartu Anda akan beralih dari Prabayar ke Pascabayar. Cukup gunakan dengan nyaman tanpa perlu rutin isi ulang pulsa.`,
+            `<strong>Rasakan pengalaman internetan lebih maksimal dengan Smartfren Pascabayar!<br><br>` +
+            `Nikmati beragam keuntungan dan promo menarik:<br>` +
+            `• Kuota unlimited ULTRA 5G+ hanya Rp200rb/bulan<br>` +
+            `• Mudah registrasi tanpa perlu kartu kredit<br>` +
+            `• Kuota instant roaming ke 75+ negara<br>` +
+            `• Tagihan terkendali<br>` +
+            `• Priority customer service</strong>`,
           buttons: [
-            { html: "Upgrade ke Pascabayar", label: "Upgrade ke Pascabayar" },
-            { html: "Beli Nomor Pascabayar", label: "Beli Nomor Pascabayar" },
-            { html: "🏠 Menu Utama", label: "Kembali ke Menu Utama" },
+            { html: "Upgrade ke Pascabayar", label: "Upgrade ke Pascabayar Web" },
+            { html: "Beli Nomor Pascabayar", label: "Beli Nomor Pascabayar Web" },
+            { html: "🏠Menu Utama", label: "Kembali ke Menu Utama" },
           ],
         });
       }
